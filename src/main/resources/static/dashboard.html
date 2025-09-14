@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Trading Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .btn {
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background: var(--secondary);
+        }
+        
+        .btn-success:hover {
+            background: var(--secondary-dark);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: var(--danger-dark);
+        }
+        
+        .stock-card {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .stock-card:hover {
+            border-left-color: var(--primary);
+            background-color: #f8fafc;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="card bg-gradient-to-r from-indigo-500 to-indigo-700 text-white p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-2xl md:text-3xl font-bold">Stock Trading Dashboard</h1>
+                    <p class="text-indigo-100 mt-1">Welcome back, <span id="traderDisplay" class="font-semibold"></span></p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-indigo-400/20 py-2 px-4 rounded-lg">
+                        <p class="text-xs text-indigo-100">Available Balance</p>
+                        <p class="text-lg font-bold" id="balanceDisplay"></p>
+                    </div>
+                    <button id="logoutBtn" class="btn bg-white/20 hover:bg-white/30 text-white py-2 px-4 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Market Overview -->
+            <div class="lg:col-span-2 card bg-white p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Market Overview</h2>
+                    <button id="refreshBtn" class="btn bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-2 px-4 flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh Prices
+                    </button>
+                </div>
+                
+                <div class="mb-4 relative">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <input id="stockSearch" type="text" placeholder="Search stocks..." class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                </div>
+                
+                <div class="border-b border-gray-200 flex mb-4">
+                    <button class="tab-active py-2 px-4 mr-4">All Stocks</button>
+                    <button class="py-2 px-4 text-gray-500">Gainers</button>
+                    <button class="py-2 px-4 text-gray-500">Losers</button>
+                </div>
+                
+                <div id="marketList" class="h-96 overflow-y-auto custom-scrollbar space-y-3">
+                    <!-- Stocks will be loaded here -->
+                    <div class="flex justify-center items-center h-full">
+                        <div class="animate-pulse text-gray-500">Loading market data...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Panel -->
+            <div class="card bg-white p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Trade Stocks</h2>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label for="stockSymbol" class="block text-sm font-medium text-gray-700 mb-1">Select Stock</label>
+                        <div class="relative">
+                            <select id="stockSymbol" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 appearance-none">
+                                <option value="">Choose a stock</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-3.5 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <input id="quantity" type="number" min="1" value="1" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="buyBtn" class="btn btn-success py-3">
+                            <i class="fas fa-arrow-up mr-2"></i> Buy
+                        </button>
+                        <button id="sellBtn" class="btn btn-danger py-3">
+                            <i class="fas fa-arrow-down mr-2"></i> Sell
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="tradeStatus" class="mt-6 p-4 rounded-lg hidden"></div>
+                
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-medium text-gray-700 mb-2">Order Summary</h3>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Estimated Cost</span>
+                        <span id="estimatedCost">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Commission</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <div class="flex justify-between font-medium">
+                        <span>Total</span>
+                        <span id="totalCost">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Portfolio Section -->
+        <div class="card bg-white p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Your Portfolio</h2>
+                <button id="togglePortfolioBtn" class="btn bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-2 px-4 flex items-center">
+                    <i class="fas fa-chart-pie mr-2"></i> Show Details
+                </button>
+            </div>
+            
+            <div id="portfolioStatus" class="mb-4 p-4 rounded-lg hidden"></div>
+            
+            <div id="portfolioSection" class="hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-50 p-4 rounded-lg">
+                        <p class="text-sm text-indigo-600">Total Value</p>
+                        <p class="text-xl font-bold">$12,458.32</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-sm text-green-600">Today's Gain</p>
+                        <p class="text-xl font-bold">+$245.63</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-sm text-blue-600">Total Gain</p>
+                        <p class="text-xl font-bold">+$1,458.32</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <p class="text-sm text-purple-600">Diversification</p>
+                        <p class="text-xl font-bold">6 stocks</p>
+                    </div>
+                </div>
+                
+                <div id="portfolioList" class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500 text-sm border-b">
+                                <th class="pb-3">Symbol</th>
+                                <th class="pb-3">Name</th>
+                                <th class="pb-3 text-right">Quantity</th>
+                                <th class="pb-3 text-right">Avg Price</th>
+                                <th class="pb-3 text-right">Current Price</th>
+                                <th class="pb-3 text-right">Value</th>
+                                <th class="pb-3 text-right">Gain/Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Portfolio items will be loaded here -->
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-gray-500">
+                                    Loading portfolio data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="card bg-white p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Recent Activity</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                            <i class="fas fa-arrow-up text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Bought AAPL</p>
+                            <p class="text-sm text-gray-500">10 shares at $175.43</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium">-$1,754.30</p>
+                        <p class="text-sm text-gray-500">2 hours ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-2 rounded-lg mr-4">
+                            <i class="fas fa-arrow-down text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Sold MSFT</p>
+                            <p class="text-sm text-gray-500">5 shares at $337.65</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium">+$1,688.25</p>
+                        <p class="text-sm text-gray-500">Yesterday</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // All the original JavaScript functionality remains exactly the same
+        const API_BASE_URL = window.location.origin + '/api';
+        const traderId = localStorage.getItem('traderId');
+        
+        if (!traderId) {
+            window.location.href = '/login';
+        }
+        
+        const traderDisplay = document.getElementById('traderDisplay');
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const marketList = document.getElementById('marketList');
+        const stockSearchInput = document.getElementById('stockSearch');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const portfolioList = document.getElementById('portfolioList');
+        const stockSymbolSelect = document.getElementById('stockSymbol');
+        const quantityInput = document.getElementById('quantity');
+        const buyBtn = document.getElementById('buyBtn');
+        const sellBtn = document.getElementById('sellBtn');
+        const tradeStatus = document.getElementById('tradeStatus');
+        const portfolioSection = document.getElementById('portfolioSection');
+        const togglePortfolioBtn = document.getElementById('togglePortfolioBtn');
+        const portfolioStatus = document.getElementById('portfolioStatus');
+
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.classList.remove('hidden', 'bg-red-200', 'bg-green-200', 'text-red-800', 'text-green-800');
+            element.classList.add(type === 'success' ? 'bg-green-200' : 'bg-red-200');
+            element.classList.add(type === 'success' ? 'text-green-800' : 'text-red-800');
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function fetchTraderDetails() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/traders/${traderId}`);
+                if (!response.ok) {
+                    throw new Error('Trader not found');
+                }
+                const trader = await response.json();
+                traderDisplay.textContent = trader.name;
+                balanceDisplay.textContent = `$${trader.balance.toFixed(2)}`;
+            } catch (error) {
+                console.error("Failed to fetch trader details:", error);
+                localStorage.removeItem('traderId');
+                window.location.href = '/login';
+            }
+        }
+
+        async function fetchStocks(searchTerm = '') {
+            try {
+                const response = await fetch(`${API_BASE_URL}/stocks?search=${searchTerm}`);
+                const stocks = await response.json();
+                marketList.innerHTML = '';
+                stockSymbolSelect.innerHTML = '<option value="">Choose a stock</option>';
+                
+                if (stocks.length === 0) {
+                    marketList.innerHTML = `<p class="text-gray-500 text-center py-8">No stocks found.</p>`;
+                    return;
+                }
+                
+                stocks.forEach(stock => {
+                    const isGaining = Math.random() > 0.5;
+                    const changePercent = (Math.random() * 5).toFixed(2);
+                    
+                    const stockDiv = document.createElement('div');
+                    stockDiv.className = 'stock-card p-4 bg-white border rounded-lg flex justify-between items-center';
+                    stockDiv.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800">${stock.symbol}</p>
+                            <p class="text-sm text-gray-600">${stock.name}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-lg">$${stock.price}</p>
+                            <p class="text-sm ${isGaining ? 'text-green-600' : 'text-red-600'}">
+                                <i class="fas ${isGaining ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${changePercent}%
+                            </p>
+                        </div>
+                    `;
+                    marketList.appendChild(stockDiv);
+                    
+                    const option = document.createElement('option');
+                    option.value = stock.symbol;
+                    option.textContent = `${stock.name} (${stock.symbol})`;
+                    stockSymbolSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Failed to fetch stocks:", error);
+                marketList.innerHTML = `<p class="text-red-500 text-center py-8">Failed to load market data.</p>`;
+            }
+        }
+
+        async function fetchPortfolio() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/traders/${traderId}/portfolio`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch portfolio');
+                }
+                const portfolio = await response.json();
+                
+                portfolioList.innerHTML = '';
+
+                if (portfolio.holdings.length === 0) {
+                    portfolioList.innerHTML = `<tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">You do not own any stocks yet.</td>
+                    </tr>`;
+                    return;
+                }
+
+                portfolio.holdings.forEach(holding => {
+                    const isGaining = Math.random() > 0.5;
+                    const change = (Math.random() * 500 - 250).toFixed(2);
+                    const changePercent = (Math.random() * 10).toFixed(2);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-4 font-bold">${holding.stockSymbol}</td>
+                        <td class="py-4">${holding.stockSymbol} Inc.</td>
+                        <td class="py-4 text-right">${holding.quantity}</td>
+                        <td class="py-4 text-right">$${(Math.random() * 100 + 50).toFixed(2)}</td>
+                        <td class="py-4 text-right">$${(Math.random() * 100 + 50).toFixed(2)}</td>
+                        <td class="py-4 text-right">$${(holding.quantity * (Math.random() * 100 + 50)).toFixed(2)}</td>
+                        <td class="py-4 text-right ${isGaining ? 'text-green-600' : 'text-red-600'}">
+                            ${isGaining ? '+' : ''}$${change} (${changePercent}%)
+                        </td>
+                    `;
+                    portfolioList.appendChild(row);
+                });
+                
+                showStatus(portfolioStatus, 'Portfolio updated successfully.', 'success');
+
+            } catch (error) {
+                console.error("An error occurred during portfolio fetch:", error);
+                showStatus(portfolioStatus, 'An error occurred. Check the console for details.', 'error');
+            }
+        }
+
+        async function performTrade(tradeType) {
+            const stockSymbol = stockSymbolSelect.value;
+            const quantity = parseInt(quantityInput.value, 10);
+            
+            if (!stockSymbol || quantity <= 0) {
+                showStatus(tradeStatus, 'Please select a stock and enter a valid quantity.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/traders/${traderId}/${tradeType}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stockSymbol, quantity })
+                });
+
+                if (response.ok) {
+                    showStatus(tradeStatus, `Successfully ${tradeType === 'buy' ? 'bought' : 'sold'} ${quantity} shares of ${stockSymbol}!`, 'success');
+                    await fetchTraderDetails();
+                    await fetchPortfolio();
+                } else {
+                    const error = await response.text();
+                    showStatus(tradeStatus, `Error: ${error}`, 'error');
+                }
+
+            } catch (error) {
+                console.error("Failed to perform trade:", error);
+                showStatus(tradeStatus, 'Failed to connect to the server. Please try again.', 'error');
+            }
+        }
+
+        togglePortfolioBtn.addEventListener('click', () => {
+            const isHidden = portfolioSection.classList.contains('hidden');
+            if (isHidden) {
+                fetchPortfolio();
+                portfolioSection.classList.remove('hidden');
+                togglePortfolioBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Hide Details';
+            } else {
+                portfolioSection.classList.add('hidden');
+                togglePortfolioBtn.innerHTML = '<i class="fas fa-chart-pie mr-2"></i> Show Details';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('traderId');
+            window.location.href = '/login';
+        });
+        
+        refreshBtn.addEventListener('click', async () => {
+            try {
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Refreshing';
+                await fetch(`${API_BASE_URL}/stocks/refresh`, { method: 'POST' });
+                await fetchStocks();
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> Refresh Prices';
+            } catch (error) {
+                showStatus(tradeStatus, 'Failed to refresh prices.', 'error');
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i> Refresh Prices';
+            }
+        });
+        
+        stockSearchInput.addEventListener('input', (e) => {
+            fetchStocks(e.target.value);
+        });
+
+        buyBtn.addEventListener('click', () => performTrade('buy'));
+        sellBtn.addEventListener('click', () => performTrade('sell'));
+
+        // Initialize the dashboard
+        fetchTraderDetails();
+        fetchStocks();
+    </script>
+</body>
+</html>

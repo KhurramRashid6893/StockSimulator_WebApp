@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up | Stock Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow-x: hidden;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .btn-transition {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .btn-transition:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-transition:active {
+            transform: scale(0.98);
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid #4F46E5;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .05em;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #4F46E5; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-6xl w-full flex flex-col md:flex-row rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Left side - Illustration -->
+        <div class="w-full md:w-1/2 bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-8 md:p-12 flex flex-col justify-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                <div class="absolute top-10% left-10% w-64 h-64 bg-white rounded-full"></div>
+                <div class="absolute top-60% left-70% w-40 h-40 bg-white rounded-full"></div>
+                <div class="absolute top-20% left-60% w-32 h-32 bg-white rounded-full"></div>
+            </div>
+            
+            <div class="relative z-10">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 fade-in">Stock Market Simulator</h1>
+                <p class="text-xl md:text-2xl opacity-90 mb-6 typewriter">Practice trading without risk</p>
+                
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-6 mt-8 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center mr-4">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Real-time Market Data</h3>
+                            <p class="text-sm opacity-80">Simulate real stock market conditions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center mr-4">
+                            <i class="fas fa-wallet text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Virtual $10,000</h3>
+                            <p class="text-sm opacity-80">Start with virtual money to build your portfolio</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center mr-4">
+                            <i class="fas fa-trophy text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Learn & Compete</h3>
+                            <p class="text-sm opacity-80">Track performance and improve your skills</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="absolute bottom-6 left-0 right-0 text-center opacity-80 text-sm">
+                <p>No credit card required. No risk.</p>
+            </div>
+        </div>
+        
+        <!-- Right side - Login Form -->
+        <div class="w-full md:w-1/2 bg-white p-8 md:p-12 flex flex-col justify-center">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Get Started</h2>
+                <p class="text-gray-600">Enter your name to login or create an account</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input 
+                        id="traderName" 
+                        type="text" 
+                        placeholder="Enter your full name" 
+                        class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition duration-150 ease-in-out input-focus"
+                    >
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button 
+                        id="loginBtn" 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition duration-150 ease-in-out flex items-center justify-center btn-transition"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i> Login
+                    </button>
+                    <button 
+                        id="signupBtn" 
+                        class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition duration-150 ease-in-out flex items-center justify-center btn-transition pulse"
+                    >
+                        <i class="fas fa-user-plus mr-2"></i> Sign Up
+                    </button>
+                </div>
+                
+                <div id="statusMessage" class="text-sm font-medium mt-4 p-3 rounded-lg"></div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-gray-600 text-sm">By continuing, you agree to our <a href="#" class="text-indigo-600 hover:underline">Terms of Service</a> and <a href="#" class="text-indigo-600 hover:underline">Privacy Policy</a>.</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <p class="text-gray-500 text-sm">© 2025 Stock Simulator. All rights reserved. By Khurram Rashid.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin + '/api';
+
+        const traderNameInput = document.getElementById('traderName');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.classList.remove('bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            
+            if (type === 'success') {
+                statusMessage.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                statusMessage.classList.add('bg-red-100', 'text-red-700');
+            }
+            
+            // Auto hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                    statusMessage.classList.remove('bg-green-100', 'text-green-700');
+                }, 3000);
+            }
+        }
+
+        async function createTrader(name) {
+            try {
+                // Show loading state
+                signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Account...';
+                signupBtn.disabled = true;
+                loginBtn.disabled = true;
+                
+                const response = await fetch(`${API_BASE_URL}/traders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, balance: 10000.00 })
+                });
+
+                if (response.ok) {
+                    const trader = await response.json();
+                    localStorage.setItem('traderId', trader.id);
+                    showStatus('Account created successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else if (response.status === 409) {
+                    showStatus('A trader with this name already exists. Please log in instead.', 'error');
+                } else {
+                    showStatus('Sign up failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                showStatus('Failed to connect to server. Please check your connection.', 'error');
+            } finally {
+                // Reset button state
+                signupBtn.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Sign Up';
+                signupBtn.disabled = false;
+                loginBtn.disabled = false;
+            }
+        }
+
+        async function loginTrader(name) {
+            try {
+                // Show loading state
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Logging In...';
+                loginBtn.disabled = true;
+                signupBtn.disabled = true;
+                
+                const response = await fetch(`${API_BASE_URL}/traders/login?name=${encodeURIComponent(name)}`);
+                if (response.ok) {
+                    const trader = await response.json();
+                    localStorage.setItem('traderId', trader.id);
+                    showStatus('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showStatus('Trader not found. Please sign up first.', 'error');
+                }
+            } catch (error) {
+                showStatus('Failed to connect to server. Please check your connection.', 'error');
+            } finally {
+                // Reset button state
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Login';
+                loginBtn.disabled = false;
+                signupBtn.disabled = false;
+            }
+        }
+
+        loginBtn.addEventListener('click', () => {
+            const name = traderNameInput.value.trim();
+            if (name) {
+                loginTrader(name);
+            } else {
+                showStatus('Please enter your name to continue.', 'error');
+                traderNameInput.focus();
+            }
+        });
+
+        signupBtn.addEventListener('click', () => {
+            const name = traderNameInput.value.trim();
+            if (name) {
+                createTrader(name);
+            } else {
+                showStatus('Please enter your name to create an account.', 'error');
+                traderNameInput.focus();
+            }
+        });
+        
+        // Add keyboard support
+        traderNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const name = traderNameInput.value.trim();
+                if (name) {
+                    createTrader(name);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
